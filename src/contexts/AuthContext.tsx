@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export type UserRole = 'admin' | 'teacher' | 'parent' | null;
 
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    // Redirect to login page
+    window.location.href = '/login';
   };
 
   return (

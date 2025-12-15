@@ -42,7 +42,7 @@ export default function ForgotPasswordScreen() {
           <div className="h-12 w-12 gradient-primary rounded-xl flex items-center justify-center">
             <GraduationCap className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="text-2xl font-bold text-foreground">EduManage</span>
+          <span className="text-2xl font-bold text-foreground">School Harmony</span>
         </div>
 
         {!isSubmitted ? (

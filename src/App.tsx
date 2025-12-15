@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { TeacherLayout } from "@/components/layouts/TeacherLayout";
 import { ParentLayout } from "@/components/layouts/ParentLayout";
@@ -12,6 +13,27 @@ import { ParentLayout } from "@/components/layouts/ParentLayout";
 import SplashScreen from "./pages/SplashScreen";
 import LoginScreen from "./pages/LoginScreen";
 import ForgotPasswordScreen from "./pages/ForgotPasswordScreen";
+
+// Route component for handling root redirect
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+
+function RootRedirect() {
+  const { isAuthenticated, user } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Redirect based on user role
+  const roleRedirects: Record<string, string> = {
+    admin: '/admin',
+    teacher: '/teacher',
+    parent: '/parent',
+  };
+  
+  return <Navigate to={roleRedirects[user?.role || ''] || '/login'} replace />;
+}
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -43,33 +65,34 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<SplashScreen />} />
+            <Route path="/" element={<RootRedirect />} />
+            <Route path="/splash" element={<SplashScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
 
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-            <Route path="/admin/students" element={<AdminLayout><StudentList /></AdminLayout>} />
-            <Route path="/admin/students/new" element={<AdminLayout><StudentForm /></AdminLayout>} />
-            <Route path="/admin/students/:id" element={<AdminLayout><StudentProfile /></AdminLayout>} />
-            <Route path="/admin/students/:id/edit" element={<AdminLayout><StudentForm /></AdminLayout>} />
-            <Route path="/admin/teachers" element={<AdminLayout><TeacherList /></AdminLayout>} />
-            <Route path="/admin/teachers/new" element={<AdminLayout><TeacherForm /></AdminLayout>} />
-            <Route path="/admin/teachers/:id/edit" element={<AdminLayout><TeacherForm /></AdminLayout>} />
-            <Route path="/admin/classes" element={<AdminLayout><ClassManagement /></AdminLayout>} />
-            <Route path="/admin/attendance" element={<AdminLayout><AttendanceManagement /></AdminLayout>} />
-            <Route path="/admin/grades" element={<AdminLayout><GradesManagement /></AdminLayout>} />
-            <Route path="/admin/fees" element={<AdminLayout><FeeManagement /></AdminLayout>} />
-            <Route path="/admin/reports" element={<AdminLayout><ReportsManagement /></AdminLayout>} />
-            <Route path="/admin/notifications" element={<AdminLayout><NotificationsManagement /></AdminLayout>} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><StudentList /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/students/new" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><StudentForm /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/students/:id" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><StudentProfile /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><StudentForm /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherList /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/teachers/new" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherForm /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/teachers/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherForm /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><ClassManagement /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><AttendanceManagement /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/grades" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><GradesManagement /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><FeeManagement /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><ReportsManagement /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><NotificationsManagement /></AdminLayout></ProtectedRoute>} />
 
             {/* Teacher Routes */}
-            <Route path="/teacher" element={<TeacherLayout><TeacherDashboard /></TeacherLayout>} />
-            <Route path="/teacher/*" element={<TeacherLayout><TeacherDashboard /></TeacherLayout>} />
+            <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout><TeacherDashboard /></TeacherLayout></ProtectedRoute>} />
+            <Route path="/teacher/*" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout><TeacherDashboard /></TeacherLayout></ProtectedRoute>} />
 
             {/* Parent Routes */}
-            <Route path="/parent" element={<ParentLayout><ParentDashboard /></ParentLayout>} />
-            <Route path="/parent/*" element={<ParentLayout><ParentDashboard /></ParentLayout>} />
+            <Route path="/parent" element={<ProtectedRoute allowedRoles={['parent']}><ParentLayout><ParentDashboard /></ParentLayout></ProtectedRoute>} />
+            <Route path="/parent/*" element={<ProtectedRoute allowedRoles={['parent']}><ParentLayout><ParentDashboard /></ParentLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

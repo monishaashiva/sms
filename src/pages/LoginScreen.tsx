@@ -70,7 +70,7 @@ export default function LoginScreen() {
               <div className="h-16 w-16 bg-primary-foreground/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
                 <GraduationCap className="h-8 w-8 text-primary-foreground" />
               </div>
-              <span className="text-3xl font-bold text-primary-foreground">EduManage</span>
+              <span className="text-3xl font-bold text-primary-foreground">School Harmony</span>
             </div>
             
             <h1 className="text-4xl xl:text-5xl font-bold text-primary-foreground mb-6 leading-tight">
@@ -100,7 +100,7 @@ export default function LoginScreen() {
             <div className="h-12 w-12 gradient-primary rounded-xl flex items-center justify-center">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">EduManage</span>
+            <span className="text-2xl font-bold text-foreground">School Harmony</span>
           </div>
 
           <h2 className="text-2xl font-bold text-foreground mb-2">Welcome Back</h2>

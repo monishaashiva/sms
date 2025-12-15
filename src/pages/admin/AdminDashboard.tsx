@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/shared/Avatar';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatCurrencyShort } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,14 +23,15 @@ const itemVariants = {
 };
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const recentStudents = students.slice(0, 5);
   const recentNotifications = notifications.slice(0, 3);
 
   return (
     <div>
       <PageHeader
-        title="डैशबोर्ड"
-        subtitle="स्वागत है! आपके विद्यालय की आज की गतिविधियां यहाँ देखें।"
+        title="Dashboard"
+        subtitle="Welcome! View today's activities and overview of your school here."
       />
 
       <motion.div
@@ -81,19 +83,35 @@ export default function AdminDashboard() {
               Quick Actions
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2 hover:bg-primary/5 hover:border-primary/30 transition-all duration-300">
+              <Button 
+                variant="outline" 
+                className="h-auto py-4 flex-col gap-2 hover:bg-primary/5 hover:border-primary/30 transition-all duration-300"
+                onClick={() => navigate('/admin/students/new')}
+              >
                 <Users className="h-5 w-5 text-primary" />
                 <span className="text-xs">Add Student</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2 hover:bg-success/5 hover:border-success/30 transition-all duration-300">
+              <Button 
+                variant="outline" 
+                className="h-auto py-4 flex-col gap-2 hover:bg-success/5 hover:border-success/30 transition-all duration-300"
+                onClick={() => navigate('/admin/teachers/new')}
+              >
                 <UserCheck className="h-5 w-5 text-success" />
                 <span className="text-xs">Add Teacher</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2 hover:bg-info/5 hover:border-info/30 transition-all duration-300">
+              <Button 
+                variant="outline" 
+                className="h-auto py-4 flex-col gap-2 hover:bg-info/5 hover:border-info/30 transition-all duration-300"
+                onClick={() => navigate('/admin/attendance')}
+              >
                 <Calendar className="h-5 w-5 text-info" />
                 <span className="text-xs">Attendance</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex-col gap-2 hover:bg-warning/5 hover:border-warning/30 transition-all duration-300">
+              <Button 
+                variant="outline" 
+                className="h-auto py-4 flex-col gap-2 hover:bg-warning/5 hover:border-warning/30 transition-all duration-300"
+                onClick={() => navigate('/admin/notifications')}
+              >
                 <Bell className="h-5 w-5 text-warning" />
                 <span className="text-xs">Send Notice</span>
               </Button>
@@ -107,7 +125,12 @@ export default function AdminDashboard() {
                 <IndianRupee className="h-5 w-5 text-warning" />
                 Fee Collection Overview
               </h3>
-              <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary hover:text-primary hover:bg-primary/10"
+                onClick={() => navigate('/admin/fees')}
+              >
                 View Details <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -148,7 +171,14 @@ export default function AdminDashboard() {
           <div className="glass-card p-0 overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-border/50">
               <h3 className="text-lg font-semibold text-foreground">Recent Students</h3>
-              <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10">View All</Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary hover:text-primary hover:bg-primary/10"
+                onClick={() => navigate('/admin/students')}
+              >
+                View All
+              </Button>
             </div>
             <div className="divide-y divide-border/50">
               {recentStudents.map((student, index) => (
@@ -158,6 +188,7 @@ export default function AdminDashboard() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 * index }}
                   className="flex items-center gap-4 p-4 hover:bg-primary/5 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/admin/students/${student.id}`)}
                 >
                   <Avatar name={student.name} size="sm" />
                   <div className="flex-1 min-w-0">
@@ -174,7 +205,14 @@ export default function AdminDashboard() {
           <div className="glass-card p-0 overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-border/50">
               <h3 className="text-lg font-semibold text-foreground">Recent Notifications</h3>
-              <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10">View All</Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary hover:text-primary hover:bg-primary/10"
+                onClick={() => navigate('/admin/notifications')}
+              >
+                View All
+              </Button>
             </div>
             <div className="divide-y divide-border/50">
               {recentNotifications.map((notification, index) => (

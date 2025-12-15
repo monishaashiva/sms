@@ -30,11 +30,11 @@ export function TeacherLayout({ children }: { children: ReactNode }) {
               <div className="h-9 w-9 gradient-primary rounded-lg flex items-center justify-center">
                 <GraduationCap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-foreground">EduManage</span>
+              <span className="font-bold text-foreground">School Harmony</span>
             </div>
             <div className="flex items-center gap-4">
               <Avatar name={user?.name || 'Teacher'} size="sm" />
-              <Button variant="ghost" size="sm" onClick={() => { logout(); navigate('/login'); }}>
+              <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>

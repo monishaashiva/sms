@@ -1,4 +1,14 @@
-# Welcome to your Lovable project
+# School Harmony - School Management System
+
+A modern, comprehensive school management system built with React, TypeScript, and Tailwind CSS.
+
+## Demo Login Credentials
+
+The application includes demo accounts for testing different user roles:
+
+- **Admin**: admin@school.com / admin123
+- **Teacher**: teacher@school.com / teacher123  
+- **Parent**: parent@school.com / parent123
 
 ## Project info
 

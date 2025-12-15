@@ -57,7 +57,7 @@ export function AdminSidebar() {
           <GraduationCap className="h-5 w-5 text-sidebar-primary-foreground" />
         </div>
         {!isCollapsed && (
-          <span className="text-xl font-bold text-sidebar-foreground">विद्या प्रबंधन</span>
+          <span className="text-xl font-bold text-sidebar-foreground">School Harmony</span>
         )}
       </div>
 

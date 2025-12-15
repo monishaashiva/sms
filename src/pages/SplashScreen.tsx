@@ -63,7 +63,7 @@ export default function SplashScreen() {
           transition={{ delay: 0.3 }}
           className="text-3xl md:text-4xl font-bold text-foreground mb-2"
         >
-          EduManage
+          School Harmony
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}

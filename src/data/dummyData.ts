@@ -1,22 +1,22 @@
 // Students Data - Indian Names
 export const students = [
-  { id: '1', name: 'Aarav Sharma', class: '10-A', rollNo: '101', email: 'aarav.sharma@vidyalaya.edu', phone: '+91 98765 43210', status: 'active', attendance: 92, feeStatus: 'paid' },
-  { id: '2', name: 'Ananya Patel', class: '10-A', rollNo: '102', email: 'ananya.patel@vidyalaya.edu', phone: '+91 98765 43211', status: 'active', attendance: 98, feeStatus: 'paid' },
-  { id: '3', name: 'Arjun Reddy', class: '10-B', rollNo: '103', email: 'arjun.reddy@vidyalaya.edu', phone: '+91 98765 43212', status: 'active', attendance: 85, feeStatus: 'pending' },
-  { id: '4', name: 'Diya Gupta', class: '9-A', rollNo: '104', email: 'diya.gupta@vidyalaya.edu', phone: '+91 98765 43213', status: 'inactive', attendance: 78, feeStatus: 'overdue' },
-  { id: '5', name: 'Ishaan Singh', class: '9-A', rollNo: '105', email: 'ishaan.singh@vidyalaya.edu', phone: '+91 98765 43214', status: 'active', attendance: 97, feeStatus: 'paid' },
-  { id: '6', name: 'Kavya Iyer', class: '9-B', rollNo: '106', email: 'kavya.iyer@vidyalaya.edu', phone: '+91 98765 43215', status: 'active', attendance: 96, feeStatus: 'paid' },
-  { id: '7', name: 'Rohan Mehta', class: '8-A', rollNo: '107', email: 'rohan.mehta@vidyalaya.edu', phone: '+91 98765 43216', status: 'active', attendance: 82, feeStatus: 'pending' },
-  { id: '8', name: 'Saanvi Joshi', class: '8-A', rollNo: '108', email: 'saanvi.joshi@vidyalaya.edu', phone: '+91 98765 43217', status: 'active', attendance: 94, feeStatus: 'paid' },
+  { id: '1', name: 'Aarav Sharma', class: '10-A', rollNo: '101', email: 'aarav.sharma@schoolharmony.edu', phone: '+91 98765 43210', status: 'active', attendance: 92, feeStatus: 'paid' },
+  { id: '2', name: 'Ananya Patel', class: '10-A', rollNo: '102', email: 'ananya.patel@schoolharmony.edu', phone: '+91 98765 43211', status: 'active', attendance: 98, feeStatus: 'paid' },
+  { id: '3', name: 'Arjun Reddy', class: '10-B', rollNo: '103', email: 'arjun.reddy@schoolharmony.edu', phone: '+91 98765 43212', status: 'active', attendance: 85, feeStatus: 'pending' },
+  { id: '4', name: 'Diya Gupta', class: '9-A', rollNo: '104', email: 'diya.gupta@schoolharmony.edu', phone: '+91 98765 43213', status: 'inactive', attendance: 78, feeStatus: 'overdue' },
+  { id: '5', name: 'Ishaan Singh', class: '9-A', rollNo: '105', email: 'ishaan.singh@schoolharmony.edu', phone: '+91 98765 43214', status: 'active', attendance: 97, feeStatus: 'paid' },
+  { id: '6', name: 'Kavya Iyer', class: '9-B', rollNo: '106', email: 'kavya.iyer@schoolharmony.edu', phone: '+91 98765 43215', status: 'active', attendance: 96, feeStatus: 'paid' },
+  { id: '7', name: 'Rohan Mehta', class: '8-A', rollNo: '107', email: 'rohan.mehta@schoolharmony.edu', phone: '+91 98765 43216', status: 'active', attendance: 82, feeStatus: 'pending' },
+  { id: '8', name: 'Saanvi Joshi', class: '8-A', rollNo: '108', email: 'saanvi.joshi@schoolharmony.edu', phone: '+91 98765 43217', status: 'active', attendance: 94, feeStatus: 'paid' },
 ];
 
 // Teachers Data - Indian Names
 export const teachers = [
-  { id: '1', name: 'Dr. Priya Sharma', subject: 'Mathematics', email: 'priya.sharma@vidyalaya.edu', phone: '+91 99876 54321', classes: ['10-A', '10-B', '9-A'], status: 'active' },
-  { id: '2', name: 'Rajesh Kumar', subject: 'English', email: 'rajesh.kumar@vidyalaya.edu', phone: '+91 99876 54322', classes: ['10-A', '9-A', '8-A'], status: 'active' },
-  { id: '3', name: 'Meera Nair', subject: 'Science', email: 'meera.nair@vidyalaya.edu', phone: '+91 99876 54323', classes: ['10-B', '9-B'], status: 'active' },
-  { id: '4', name: 'Sunil Verma', subject: 'Hindi', email: 'sunil.verma@vidyalaya.edu', phone: '+91 99876 54324', classes: ['9-A', '9-B', '8-A'], status: 'on-leave' },
-  { id: '5', name: 'Dr. Anjali Desai', subject: 'Physics', email: 'anjali.desai@vidyalaya.edu', phone: '+91 99876 54325', classes: ['10-A', '10-B'], status: 'active' },
+  { id: '1', name: 'Dr. Priya Sharma', subject: 'Mathematics', email: 'priya.sharma@schoolharmony.edu', phone: '+91 99876 54321', classes: ['10-A', '10-B', '9-A'], status: 'active' },
+  { id: '2', name: 'Rajesh Kumar', subject: 'English', email: 'rajesh.kumar@schoolharmony.edu', phone: '+91 99876 54322', classes: ['10-A', '9-A', '8-A'], status: 'active' },
+  { id: '3', name: 'Meera Nair', subject: 'Science', email: 'meera.nair@schoolharmony.edu', phone: '+91 99876 54323', classes: ['10-B', '9-B'], status: 'active' },
+  { id: '4', name: 'Sunil Verma', subject: 'Hindi', email: 'sunil.verma@schoolharmony.edu', phone: '+91 99876 54324', classes: ['9-A', '9-B', '8-A'], status: 'on-leave' },
+  { id: '5', name: 'Dr. Anjali Desai', subject: 'Physics', email: 'anjali.desai@schoolharmony.edu', phone: '+91 99876 54325', classes: ['10-A', '10-B'], status: 'active' },
 ];
 
 // Classes Data
@@ -62,10 +62,10 @@ export const feeRecords = [
 
 // Notifications
 export const notifications = [
-  { id: '1', title: 'अभिभावक-शिक्षक बैठक', message: 'वार्षिक PTM अगले शनिवार सुबह 10 बजे निर्धारित है। All parents are requested to attend.', date: '2024-01-15', type: 'event', recipients: 'all' },
-  { id: '2', title: 'शुल्क अनुस्मारक', message: 'कृपया माह के अंत तक बकाया शुल्क जमा करें। Late payment will incur additional charges.', date: '2024-01-14', type: 'reminder', recipients: 'parents' },
-  { id: '3', title: 'गणतंत्र दिवस अवकाश', message: '26 जनवरी को गणतंत्र दिवस के अवसर पर विद्यालय बंद रहेगा।', date: '2024-01-13', type: 'notice', recipients: 'all' },
-  { id: '4', title: 'परीक्षा कार्यक्रम जारी', message: 'Mid-term examination schedule has been published. Check student portal for details.', date: '2024-01-12', type: 'academic', recipients: 'all' },
+  { id: '1', title: 'Parent-Teacher Meeting', message: 'Annual PTM is scheduled for next Saturday at 10 AM. All parents are requested to attend.', date: '2024-01-15', type: 'event', recipients: 'all' },
+  { id: '2', title: 'Fee Reminder', message: 'Please submit pending fees by the end of the month. Late payment will incur additional charges.', date: '2024-01-14', type: 'reminder', recipients: 'parents' },
+  { id: '3', title: 'Republic Day Holiday', message: 'School will remain closed on 26th January on the occasion of Republic Day.', date: '2024-01-13', type: 'notice', recipients: 'all' },
+  { id: '4', title: 'Examination Schedule Released', message: 'Mid-term examination schedule has been published. Check student portal for details.', date: '2024-01-12', type: 'academic', recipients: 'all' },
 ];
 
 // Dashboard Stats - Indian Rupees
