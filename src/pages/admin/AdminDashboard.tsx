@@ -28,8 +28,8 @@ export default function AdminDashboard() {
   return (
     <div>
       <PageHeader
-        title="Dashboard"
-        subtitle="Welcome back! Here's what's happening at your school today."
+        title="डैशबोर्ड"
+        subtitle="स्वागत है! आपके विद्यालय की आज की गतिविधियां यहाँ देखें।"
       />
 
       <motion.div

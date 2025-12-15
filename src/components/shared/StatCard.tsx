@@ -35,11 +35,11 @@ const iconVariantStyles = {
 
 const glowStyles = {
   default: '',
-  primary: 'group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]',
-  success: 'group-hover:shadow-[0_0_30px_rgba(34,197,94,0.2)]',
-  warning: 'group-hover:shadow-[0_0_30px_rgba(234,179,8,0.2)]',
-  info: 'group-hover:shadow-[0_0_30px_rgba(14,165,233,0.2)]',
-  accent: 'group-hover:shadow-[0_0_30px_rgba(20,184,166,0.2)]',
+  primary: 'group-hover:shadow-[0_0_40px_rgba(233,99,79,0.25)]',
+  success: 'group-hover:shadow-[0_0_40px_rgba(16,185,129,0.25)]',
+  warning: 'group-hover:shadow-[0_0_40px_rgba(245,158,11,0.25)]',
+  info: 'group-hover:shadow-[0_0_40px_rgba(59,130,246,0.25)]',
+  accent: 'group-hover:shadow-[0_0_40px_rgba(20,184,166,0.25)]',
 };
 
 export function StatCard({ title, value, icon: Icon, trend, variant = 'default', className, delay = 0 }: StatCardProps) {
