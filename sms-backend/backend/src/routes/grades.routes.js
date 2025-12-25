@@ -8,30 +8,29 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-    let { class_id, subject, exam_type } = req.query;
+    const { class_id, subject, exam_type } = req.query;
 
     if (!subject || !exam_type) {
       return res.status(400).json({ error: "subject and exam_type are required" });
     }
 
-    // Base query
     let query = `
       SELECT
         s.id,
-        s.roll_number AS roll_no,
+        s.roll_number,       
         s.name,
-        COALESCE(m.marks, '') AS marks
+        s.class_id,
+        m.marks
       FROM students s
       LEFT JOIN marks m
         ON m.student_id = s.id
         AND m.subject = $1
         AND m.exam_type = $2
     `;
-    
+
     const values = [subject, exam_type];
 
-    // Only add class filter if class_id is a valid number
-    if (class_id && class_id.trim() !== "" && !isNaN(Number(class_id))) {
+    if (class_id && !isNaN(class_id)) {
       query += ` WHERE s.class_id = $3`;
       values.push(Number(class_id));
     }
@@ -40,12 +39,12 @@ router.get("/", async (req, res) => {
 
     const result = await pool.query(query, values);
     res.json(result.rows);
-
   } catch (err) {
-    console.error("POSTGRES ERROR 👉", err);
-    res.status(500).json({ error: err.message });
+    console.error("Grades fetch error 👉", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 /**
  * SAVE / UPDATE MARKS
@@ -59,13 +58,16 @@ router.post("/", async (req, res) => {
     }
 
     for (const item of marks) {
-      if (!item.student_id || item.student_id.toString().trim() === "") continue;
+      const studentId = Number(item.student_id);
 
-      const student_id = Number(item.student_id);
-      const mark = item.marks === "" ? null : Number(item.marks);
+      if (!studentId) continue;
 
-      // skip invalid numeric conversion
-      if (isNaN(student_id) || (mark !== null && isNaN(mark))) continue;
+      const markValue =
+        item.marks === "" || item.marks === null
+          ? null
+          : Number(item.marks);
+
+      if (markValue !== null && isNaN(markValue)) continue;
 
       await pool.query(
         `
@@ -74,14 +76,13 @@ router.post("/", async (req, res) => {
         ON CONFLICT (student_id, subject, exam_type)
         DO UPDATE SET marks = EXCLUDED.marks
         `,
-        [student_id, subject, mark, exam_type]
+        [studentId, subject, markValue, exam_type]
       );
     }
 
     res.json({ message: "Marks saved successfully" });
-
-  } catch (error) {
-    console.error("Save marks error ", error);
+  } catch (err) {
+    console.error("Save marks error 👉", err);
     res.status(500).json({ error: "Failed to save marks" });
   }
 });

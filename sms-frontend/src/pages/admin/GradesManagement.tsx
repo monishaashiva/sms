@@ -68,7 +68,7 @@ export default function GradesManagement() {
     try {
       const marksArray = students.map((s) => ({
         student_id: s.id,
-        marks: Number(marks[s.id] || 0),
+        marks: marks[s.id] === "" ? "" : Number(marks[s.id]),
       }));
 
       await api.post("/api/grades", {
