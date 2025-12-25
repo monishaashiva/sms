@@ -1,183 +1,185 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, Download, Check, X, Clock } from 'lucide-react';
-import { PageHeader } from '@/components/shared/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { students } from '@/data/dummyData';
-import { useToast } from '@/hooks/use-toast';
+  import { useEffect, useState } from "react";
+  import api from "@/lib/api";
+  import { Button } from "@/components/ui/button";
+  import { useNavigate } from "react-router-dom";
 
-export default function AttendanceManagement() {
-  const { toast } = useToast();
-  const [selectedClass, setSelectedClass] = useState('10-A');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [attendance, setAttendance] = useState<Record<string, 'present' | 'absent' | 'late'>>({});
 
-  const classStudents = students.filter(s => s.class === selectedClass);
+  import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
 
-  const markAttendance = (studentId: string, status: 'present' | 'absent' | 'late') => {
-    setAttendance(prev => ({ ...prev, [studentId]: status }));
-  };
+  import { useToast } from "@/components/ui/use-toast";
 
-  const markAllPresent = () => {
-    const allPresent: Record<string, 'present'> = {};
-    classStudents.forEach(s => { allPresent[s.id] = 'present'; });
-    setAttendance(allPresent);
-  };
+  export default function AttendanceManagement() {
+    const [allStudents, setAllStudents] = useState<any[]>([]);
+    const [selectedClass, setSelectedClass] = useState<string>("");
+    const [selectedDate, setSelectedDate] = useState<string>("");
+    const [students, setStudents] = useState<any[]>([]);
+    const [attendance, setAttendance] = useState<Record<number, string>>({});
 
-  const saveAttendance = () => {
-    toast({
-      title: 'Attendance Saved',
-      description: `Attendance for ${selectedClass} on ${selectedDate} has been saved.`,
+    const navigate = useNavigate();          
+    const { toast } = useToast(); 
+    
+    // ✅ LOAD ALL STUDENTS ON PAGE LOAD
+useEffect(() => {
+  api
+    .get("/api/students")
+    .then((res) => {
+      setAllStudents(res.data);
+      setStudents(res.data); // 👈 THIS makes table visible immediately
+    })
+    .catch((err) => console.error("Fetch students error:", err));
+}, []);
+
+
+    // FETCH attendance
+    // FILTER 
+useEffect(() => {
+  // If class/date not selected → just filter
+  if (!selectedClass || !selectedDate) {
+    setStudents(
+      selectedClass
+        ? allStudents.filter(
+            (s) => String(s.class_id) === String(selectedClass)
+          )
+        : allStudents
+    );
+    return;
+  }
+
+  // If both selected → load attendance
+  api
+    .get("/api/attendance", {
+      params: {
+        classId: selectedClass,
+        date: selectedDate,
+      },
+    })
+    .then((res) => {
+      setStudents(res.data);
+
+      const initial: Record<number, string> = {};
+      res.data.forEach((s: any) => {
+        if (s.status && s.status !== "not_marked") {
+          initial[s.id] = s.status;
+        }
+      });
+
+      setAttendance(initial);
+    })
+    .catch((err) => console.error(err));
+}, [selectedClass, selectedDate, allStudents]);
+
+
+    const markAttendance = (studentId: number, status: string) => {
+      setAttendance((prev) => ({ ...prev, [studentId]: status }));
+    };
+
+    const markAllPresent = () => {
+      const all: Record<number, string> = {};
+      students.forEach((s) => (all[s.id] = "present"));
+      setAttendance(all);
+    };
+
+    const saveAttendance = async () => {
+  try {
+    if (!selectedClass || !selectedDate) {
+      toast({
+        title: "Missing data",
+        description: "Please select class and date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await api.post("/api/attendance", {
+      date: selectedDate,
+      records: Object.entries(attendance).map(([studentId, status]) => ({
+        student_id: Number(studentId),
+        status,
+      })),
     });
-  };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <PageHeader
-        title="Attendance"
-        subtitle="Mark and manage student attendance"
-      />
+    toast({
+      title: "Attendance Saved",
+      description: "Attendance saved successfully",
+    });
 
-      <Tabs defaultValue="mark" className="space-y-6">
-        <TabsList className="bg-muted">
-          <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
-          <TabsTrigger value="reports">Attendance Reports</TabsTrigger>
-        </TabsList>
+    // ✅ NO NAVIGATION → NO 404
 
-        <TabsContent value="mark">
-          {/* Filters */}
-          <div className="form-section mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="input-group">
-                <Label>Class</Label>
-                <Select value={selectedClass} onValueChange={setSelectedClass}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover">
-                    <SelectItem value="10-A">Class 10-A</SelectItem>
-                    <SelectItem value="10-B">Class 10-B</SelectItem>
-                    <SelectItem value="9-A">Class 9-A</SelectItem>
-                    <SelectItem value="9-B">Class 9-B</SelectItem>
-                    <SelectItem value="8-A">Class 8-A</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="input-group">
-                <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-              </div>
-              <div className="input-group flex items-end">
-                <Button variant="outline" onClick={markAllPresent} className="w-full">
-                  Mark All Present
-                </Button>
-              </div>
-            </div>
-          </div>
+  } catch (error) {
+    console.error("Save attendance error:", error);
+    toast({
+      title: "Error",
+      description: "Failed to save attendance",
+      variant: "destructive",
+    });
+  }
+};
 
-          {/* Attendance Table */}
-          <div className="bg-card rounded-xl shadow-md border border-border/50 overflow-hidden">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Roll No</th>
-                  <th>Student Name</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {classStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td>{student.rollNo}</td>
-                    <td className="font-medium">{student.name}</td>
-                    <td>
-                      {attendance[student.id] ? (
-                        <span className={`badge-${attendance[student.id] === 'present' ? 'success' : attendance[student.id] === 'late' ? 'warning' : 'destructive'}`}>
-                          {attendance[student.id].charAt(0).toUpperCase() + attendance[student.id].slice(1)}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">Not marked</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant={attendance[student.id] === 'present' ? 'success' : 'outline'}
-                          onClick={() => markAttendance(student.id, 'present')}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={attendance[student.id] === 'absent' ? 'destructive' : 'outline'}
-                          onClick={() => markAttendance(student.id, 'absent')}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={attendance[student.id] === 'late' ? 'warning' : 'outline'}
-                          onClick={() => markAttendance(student.id, 'late')}
-                        >
-                          <Clock className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    return (
+      <div className="p-6 space-y-6">
+        <h1 className="text-xl font-bold">Attendance Management</h1>
 
-          <div className="flex justify-end mt-6">
-            <Button onClick={saveAttendance}>
-              Save Attendance
-            </Button>
-          </div>
-        </TabsContent>
+        {/* Controls */}
+        <div className="flex gap-4">
+          <Select onValueChange={setSelectedClass}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="Select Class" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Class 1-A</SelectItem>
+              <SelectItem value="2">Class 2-A</SelectItem>
+              <SelectItem value="3">Class 3-B</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <TabsContent value="reports">
-          <div className="form-section">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Attendance Reports</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="p-4 bg-success/10 rounded-lg text-center">
-                <p className="text-3xl font-bold text-success">92%</p>
-                <p className="text-sm text-muted-foreground">Overall Attendance</p>
-              </div>
-              <div className="p-4 bg-warning/10 rounded-lg text-center">
-                <p className="text-3xl font-bold text-warning">15</p>
-                <p className="text-sm text-muted-foreground">Below 75% Attendance</p>
-              </div>
-              <div className="p-4 bg-info/10 rounded-lg text-center">
-                <p className="text-3xl font-bold text-info">850</p>
-                <p className="text-sm text-muted-foreground">Total Students</p>
-              </div>
-            </div>
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" /> Download Report
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </motion.div>
-  );
-}
+          <input
+            type="date"
+            className="border px-3 py-2 rounded"
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+
+          <Button onClick={markAllPresent}>Mark All Present</Button>
+          <Button onClick={saveAttendance}>Save</Button>
+        </div>
+
+        {/* Table */}
+        <table className="w-full border">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2">Roll</th>
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((student) => (
+              <tr key={student.id}>
+                <td className="border p-2">{student.roll_number}</td>
+                <td className="border p-2">{student.name}</td>
+                <td className="border p-2 space-x-2">
+                  {["present", "absent", "late"].map((s) => (
+                    <Button
+                      key={s}
+                      size="sm"
+                      variant={
+                        attendance[student.id] === s ? "default" : "outline"
+                      }
+                      onClick={() => markAttendance(student.id, s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }

@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +16,7 @@ const navItems = [
   { icon: Bell, label: 'Notifications', path: '/teacher/notifications' },
 ];
 
-export function TeacherLayout({ children }: { children: ReactNode }) {
+export function TeacherLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -59,7 +60,8 @@ export function TeacherLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-8">{children}</main>
+      <main className="container mx-auto px-4 py-8"><Outlet /></main>
+
     </div>
   );
 }

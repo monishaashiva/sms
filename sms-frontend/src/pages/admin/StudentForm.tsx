@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -14,34 +15,86 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { students } from '@/data/dummyData';
+
 
 export default function StudentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = id && id !== 'new';
-  const existingStudent = isEdit ? students.find(s => s.id === id) : null;
+  
 
   const [formData, setFormData] = useState({
-    name: existingStudent?.name || '',
-    email: existingStudent?.email || '',
-    phone: existingStudent?.phone || '',
-    class: existingStudent?.class || '',
-    rollNo: existingStudent?.rollNo || '',
+    name: '',
+    email: '',
+    phone: '',
+    class: '',
+    rollNo: '',
     parentName: '',
     parentPhone: '',
     address: '',
   });
+  
+  useEffect(() => {
+  if (!isEdit) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: isEdit ? 'Student Updated' : 'Student Added',
-      description: `${formData.name} has been ${isEdit ? 'updated' : 'added'} successfully.`,
+  api.get(`/api/students/${id}`).then((res) => {
+    setFormData({
+      name: res.data.name,
+      email: "",
+      phone: "",
+      class: String(res.data.class_id ?? ""),
+      rollNo: res.data.roll_number,
+      parentName: "",
+      parentPhone: "",
+      address: "",
     });
-    navigate('/admin/students');
-  };
+  });
+}, [id, isEdit]);
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    if (isEdit) {
+      // UPDATE STUDENT
+      await api.put(`/api/students/${id}`, {
+        roll_number: formData.rollNo,
+        name: formData.name,
+        classId: Number(formData.class),
+      });
+
+      toast({
+        title: "Student Updated",
+        description: `${formData.name} updated successfully.`,
+      });
+    } else {
+      // ADD STUDENT
+      await api.post("/api/students", {
+        roll_number: formData.rollNo,
+        name: formData.name,
+        classId: Number(formData.class),
+      });
+
+      toast({
+        title: "Student Added",
+        description: `${formData.name} added successfully.`,
+      });
+    }
+
+    navigate("/admin/students");
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: "Failed to save student",
+      variant: "destructive",
+    });
+  }
+};
+
+
 
   return (
     <motion.div
@@ -106,12 +159,9 @@ export default function StudentForm() {
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
-                  <SelectItem value="10-A">Class 10-A</SelectItem>
-                  <SelectItem value="10-B">Class 10-B</SelectItem>
-                  <SelectItem value="9-A">Class 9-A</SelectItem>
-                  <SelectItem value="9-B">Class 9-B</SelectItem>
-                  <SelectItem value="8-A">Class 8-A</SelectItem>
-                  <SelectItem value="8-B">Class 8-B</SelectItem>
+                <SelectItem value="1">Class 1 - A</SelectItem>
+                <SelectItem value="2">Class 2 - A</SelectItem>
+                <SelectItem value="3">Class 3 - B</SelectItem>
                 </SelectContent>
               </Select>
             </div>

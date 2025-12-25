@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit, Mail, Phone, MapPin, Calendar, DollarSign, BookOpen } from 'lucide-react';
@@ -6,25 +7,47 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar } from '@/components/shared/Avatar';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { students, grades, feeRecords, attendanceRecords } from '@/data/dummyData';
-
 export default function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const student = students.find(s => s.id === id);
-  const studentGrades = grades.filter(g => g.studentId === id);
-  const studentFees = feeRecords.find(f => f.studentId === id);
+  const [student, setStudent] = useState<any>(null);
+const [loading, setLoading] = useState(true);
+const attendance = 80;
+const email = "—";
+const phone = "—";
+const status = "active";
+const feeStatus = "paid";
 
-  if (!student) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">Student not found</p>
-        <Button variant="link" onClick={() => navigate('/admin/students')}>
-          Back to Students
-        </Button>
-      </div>
-    );
-  }
+
+useEffect(() => {
+  api.get(`/api/students/${id}`)
+    .then(res => {
+      setStudent(res.data);
+    })
+    .catch(() => {
+      setStudent(null);
+    })
+    .finally(() => setLoading(false));
+}, [id]);
+
+const studentGrades: any[] = [];
+const studentFees = null;
+
+
+  if (loading) {
+  return <p className="text-muted-foreground">Loading student...</p>;
+}
+
+if (!student) {
+  return (
+    <div className="text-center py-12">
+      <p className="text-muted-foreground">Student not found</p>
+      <Button variant="link" onClick={() => navigate('/admin/students')}>
+        Back to Students
+      </Button>
+    </div>
+  );
+}
 
   return (
     <motion.div
@@ -45,7 +68,7 @@ export default function StudentProfile() {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{student.name}</h1>
-                <p className="text-muted-foreground">Roll No: {student.rollNo} • Class {student.class}</p>
+                <p className="text-muted-foreground">Roll No: {student.roll_number} •Class {student.class_name}-{student.section}</p>
               </div>
               <Button onClick={() => navigate(`/admin/students/${id}/edit`)}>
                 <Edit className="h-4 w-4 mr-2" /> Edit
@@ -53,7 +76,7 @@ export default function StudentProfile() {
             </div>
             <div className="flex flex-wrap gap-4 mt-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4" /> {student.email}
+                <Mail className="h-4 w-4" /> {email}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" /> {student.phone}
@@ -83,15 +106,15 @@ export default function StudentProfile() {
               <dl className="space-y-4">
                 <div>
                   <dt className="text-sm text-muted-foreground">Class</dt>
-                  <dd className="text-foreground font-medium">{student.class}</dd>
+                  <dd className="text-foreground font-medium">{student.class_name}-{student.section}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-muted-foreground">Roll Number</dt>
-                  <dd className="text-foreground font-medium">{student.rollNo}</dd>
+                  <dd className="text-foreground font-medium">{student.roll_number}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-muted-foreground">Attendance</dt>
-                  <dd className="text-foreground font-medium">{student.attendance}%</dd>
+                  <dd className="text-foreground font-medium">{attendance}%</dd>
                 </div>
               </dl>
             </div>
@@ -100,7 +123,7 @@ export default function StudentProfile() {
               <dl className="space-y-4">
                 <div>
                   <dt className="text-sm text-muted-foreground">Email</dt>
-                  <dd className="text-foreground font-medium">{student.email}</dd>
+                  <dd className="text-foreground font-medium">{email}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-muted-foreground">Phone</dt>
@@ -115,12 +138,12 @@ export default function StudentProfile() {
           <div className="form-section">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-foreground">Attendance Overview</h3>
-              <div className="text-3xl font-bold text-primary">{student.attendance}%</div>
+              <div className="text-3xl font-bold text-primary">{attendance}%</div>
             </div>
             <div className="h-4 bg-muted rounded-full overflow-hidden mb-4">
               <div
                 className="h-full bg-success rounded-full"
-                style={{ width: `${student.attendance}%` }}
+                style={{ width: `${attendance}%` }}
               />
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">

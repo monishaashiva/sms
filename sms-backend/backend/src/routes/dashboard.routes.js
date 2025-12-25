@@ -12,8 +12,9 @@ router.get("/summary", async (req, res) => {
       "SELECT COUNT(*) FROM students"
     );
 
-    const teachersCount = await pool.query(
-      "SELECT COUNT(*) FROM users WHERE role = 'TEACHER'"
+    // COUNT TEACHERS 
+    const teachersResult = await pool.query(
+      "SELECT COUNT(*) FROM teachers"
     );
 
     const recentStudents = await pool.query(
@@ -27,7 +28,7 @@ router.get("/summary", async (req, res) => {
 
     res.json({
       totalStudents: Number(studentsCount.rows[0].count),
-      totalTeachers: Number(teachersCount.rows[0].count),
+      totalTeachers: Number(teachersResult.rows[0].count),
       recentStudents: recentStudents.rows,
     });
   } catch (err) {

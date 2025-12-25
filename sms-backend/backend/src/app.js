@@ -6,8 +6,16 @@ import express from 'express';
 import cors from 'cors';
 
 import etlRoutes from './routes/etl.routes.js';
-import attendanceRoutes from './routes/attendance.etl.routes.js';
+import attendanceEtlRoutes from './routes/attendance.etl.routes.js';
 import reportRoutes from './routes/report.routes.js';
+import studentRoutes from "./routes/student.routes.js";
+import classRoutes from "./routes/class.routes.js";
+import teacherRoutes from "./routes/teacher.routes.js";
+import attendanceRoutes from "./routes/attendance.routes.js";
+import teacherdashboardRoutes from "./routes/teacherdashboard.routes.js";
+import gradesRoutes from "./routes/grades.routes.js";
+
+import parentRoutes from "./routes/parent.routes.js";
 
 const app = express();
 
@@ -21,9 +29,17 @@ app.get('/', (req, res) => {
 
 // routes
 app.use('/etl', etlRoutes);
-app.use('/etl', attendanceRoutes);
-app.use('/reports', reportRoutes);
+app.use("/api/etl", attendanceEtlRoutes);
+app.use('/api/reports', reportRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/classes", classRoutes);
+app.use("/api/teachers", teacherRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/teacherdashboard", teacherdashboardRoutes);
+app.use("/api/grades", gradesRoutes);
+
+app.use("/api/parent", parentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

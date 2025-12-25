@@ -28,8 +28,8 @@ export function DataTable<T extends { id: string }>({
   };
 
   return (
-    <div className="bg-card rounded-xl border border-border/50 shadow-md overflow-hidden">
-      <div className="overflow-x-auto">
+    <div className="bg-card rounded-xl border border-border/50 shadow-md overflow-visible">
+      <div className="relative overflow-x-auto overflow-y-visible">
         <table className="data-table">
           <thead>
             <tr>

@@ -1,5 +1,6 @@
-import pool from '../db.js';
+import pool from "../config/db.js";
 
+/* 1️⃣ Attendance Summary (already you had – keep it) */
 export const getAttendanceSummary = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -22,7 +23,54 @@ export const getAttendanceSummary = async (req, res) => {
     `);
 
     res.json({ report: result.rows });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+/* 2️⃣ Student Enrollment Report */
+export const getStudentEnrollment = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT roll_number, name, class_id
+      FROM students
+      ORDER BY roll_number;
+    `);
+    res.json({ report: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* 3️⃣ Class Strength Report */
+export const getClassStrength = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT c.class_name, COUNT(s.id) AS student_count
+      FROM classes c
+      LEFT JOIN students s ON s.class_id = c.id
+      GROUP BY c.class_name
+      ORDER BY c.class_name;
+    `);
+    res.json({ report: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* 4️⃣ Teacher Workload Report */
+export const getTeacherWorkload = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT t.name AS teacher_name, COUNT(c.id) AS classes_assigned
+      FROM teachers t
+      LEFT JOIN classes c ON c.teacher_id = t.id
+      GROUP BY t.name
+      ORDER BY t.name;
+    `);
+    res.json({ report: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

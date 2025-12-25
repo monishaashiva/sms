@@ -1,3 +1,7 @@
+import TeacherClasses from "./pages/teacher/TeacherClasses";
+import TeacherAttendance from "./pages/teacher/TeacherAttendance";
+import TeacherMarks from "./pages/teacher/TeacherMarks";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +12,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { TeacherLayout } from "@/components/layouts/TeacherLayout";
 import { ParentLayout } from "@/components/layouts/ParentLayout";
+import TeacherProfile from "./pages/admin/TeacherProfile";
 
 // Auth Pages
 import SplashScreen from "./pages/SplashScreen";
@@ -78,6 +83,7 @@ const App = () => (
             <Route path="/admin/students/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><StudentForm /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherList /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/teachers/new" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherForm /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/teachers/:id"element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherProfile /></AdminLayout></ProtectedRoute>}/>
             <Route path="/admin/teachers/:id/edit" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><TeacherForm /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><ClassManagement /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/attendance" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><AttendanceManagement /></AdminLayout></ProtectedRoute>} />
@@ -87,8 +93,17 @@ const App = () => (
             <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout><NotificationsManagement /></AdminLayout></ProtectedRoute>} />
 
             {/* Teacher Routes */}
-            <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout><TeacherDashboard /></TeacherLayout></ProtectedRoute>} />
-            <Route path="/teacher/*" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout><TeacherDashboard /></TeacherLayout></ProtectedRoute>} />
+            <Route path="/teacher" element={ <ProtectedRoute allowedRoles={['teacher']}><TeacherLayout /></ProtectedRoute>}>
+
+  <Route index element={<TeacherDashboard />} />
+  <Route path="dashboard" element={<TeacherDashboard />} />
+  <Route path="classes" element={<TeacherClasses />} />
+  <Route path="attendance" element={<TeacherAttendance />} />
+  <Route path="marks" element={<TeacherMarks />} />
+  <Route path="students" element={<TeacherStudents />} />
+</Route>
+
+
 
             {/* Parent Routes */}
             <Route path="/parent" element={<ProtectedRoute allowedRoles={['parent']}><ParentLayout><ParentDashboard /></ParentLayout></ProtectedRoute>} />

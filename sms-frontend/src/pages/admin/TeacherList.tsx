@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
+
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
@@ -14,21 +16,51 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { teachers } from '@/data/dummyData';
+
 
 export default function TeacherList() {
   const navigate = useNavigate();
+  const [teachers, setTeachers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const filteredTeachers = teachers.filter((teacher) => {
-    return teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      teacher.subject.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  useEffect(() => {
+  const fetchTeachers = async () => {
+    try {
+      const res = await api.get('/api/teachers');
+      setTeachers(res.data);
+    } catch (error) {
+      console.error('Failed to fetch teachers', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTeachers();
+}, []);
+
+  const filteredTeachers = teachers.filter((teacher: any) =>
+  teacher.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  teacher.subject?.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+const handleDelete = async (id: number) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this teacher?");
+  if (!confirmDelete) return;
+
+  try {
+    await api.delete(`/api/teachers/${id}`);
+    setTeachers(prev => prev.filter((t: any) => t.id !== id));
+  } catch (error) {
+    console.error("Failed to delete teacher", error);
+  }
+};
+
 
   const columns = [
     {
       header: 'Teacher',
-      accessor: (row: typeof teachers[0]) => (
+      accessor: (row: any) => (
         <div className="flex items-center gap-3">
           <Avatar name={row.name} size="sm" />
           <div>
@@ -40,33 +72,20 @@ export default function TeacherList() {
     },
     {
       header: 'Subject',
-      accessor: 'subject' as keyof typeof teachers[0],
+      accessor: 'subject',
     },
     {
-      header: 'Classes',
-      accessor: (row: typeof teachers[0]) => (
-        <div className="flex flex-wrap gap-1">
-          {row.classes.map((cls) => (
-            <span key={cls} className="px-2 py-0.5 bg-muted rounded text-xs">
-              {cls}
-            </span>
-          ))}
-        </div>
-      ),
+      header: 'Class',
+      accessor: 'class_name',
     },
     {
       header: 'Phone',
-      accessor: 'phone' as keyof typeof teachers[0],
+      accessor: 'phone',
     },
-    {
-      header: 'Status',
-      accessor: (row: typeof teachers[0]) => (
-        <StatusBadge status={row.status as 'active' | 'on-leave'} />
-      ),
-    },
+    
     {
       header: '',
-      accessor: (row: typeof teachers[0]) => (
+      accessor: (row: any) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -74,15 +93,31 @@ export default function TeacherList() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-popover">
-            <DropdownMenuItem onClick={() => navigate(`/admin/teachers/${row.id}`)}>
-              <Eye className="h-4 w-4 mr-2" /> View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/admin/teachers/${row.id}/edit`)}>
-              <Edit className="h-4 w-4 mr-2" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem
+  onClick={(e) => {
+    e.stopPropagation();  
+    navigate(`/admin/teachers/${row.id}`);
+  }}
+>
+  <Eye className="h-4 w-4 mr-2" /> View Details
+</DropdownMenuItem>
+<DropdownMenuItem
+  onClick={(e) => {
+    e.stopPropagation();  
+    navigate(`/admin/teachers/${row.id}/edit`);
+  }}
+>
+  <Edit className="h-4 w-4 mr-2" /> Edit
+</DropdownMenuItem>
+
+
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => handleDelete(row.id)}
+            >
               <Trash2 className="h-4 w-4 mr-2" /> Delete
             </DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -119,10 +154,12 @@ export default function TeacherList() {
       </div>
 
       {/* Table */}
-      <DataTable
-        columns={columns}
-        data={filteredTeachers}
-      />
+      {loading ? (
+  <p>Loading teachers...</p>
+) : (
+  <DataTable columns={columns} data={filteredTeachers} />
+)}
+
     </motion.div>
   );
 }
