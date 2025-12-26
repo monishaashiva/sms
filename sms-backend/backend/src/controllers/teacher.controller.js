@@ -39,20 +39,22 @@ export const getTeacherById = async (req, res) => {
 ================================ */
 export const createTeacher = async (req, res) => {
   try {
-    const { name, email, phone, subject, class_id } = req.body;
+    const { name, email, phone, subject, class_name } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO teachers (name, email, phone, subject, class_id)
+      `INSERT INTO teachers (name, email, phone, subject, class_name)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [name, email, phone, subject, class_id]
+      [name, email, phone, subject, class_name]
     );
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    console.error("CREATE TEACHER ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 /* ===============================
    UPDATE TEACHER
@@ -60,14 +62,14 @@ export const createTeacher = async (req, res) => {
 export const updateTeacher = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, subject, class_id } = req.body;
+    const { name, email, phone, subject, class_name } = req.body;
 
     const result = await pool.query(
       `UPDATE teachers
-       SET name=$1, email=$2, phone=$3, subject=$4, class_id=$5
+       SET name=$1, email=$2, phone=$3, subject=$4, class_name=$5
        WHERE id=$6
        RETURNING *`,
-      [name, email, phone, subject, class_id, id]
+      [name, email, phone, subject, class_name, id]
     );
 
     res.json(result.rows[0]);

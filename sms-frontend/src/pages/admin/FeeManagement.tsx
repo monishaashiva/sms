@@ -1,106 +1,212 @@
-import { motion } from 'framer-motion';
-import { DollarSign, Download, Plus } from 'lucide-react';
-import { PageHeader } from '@/components/shared/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DataTable } from '@/components/shared/DataTable';
-import { StatusBadge } from '@/components/shared/StatusBadge';
-import { feeStructure, feeRecords } from '@/data/dummyData';
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
+import { DollarSign, Plus } from "lucide-react";
+
+import { PageHeader } from "@/components/shared/PageHeader";
+import { DataTable } from "@/components/shared/DataTable";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface FeeStructure {
+  id: number;
+  class_name: string;
+  tuition_fee: number;
+  lab_fee: number;
+  sports_fee: number;
+  total_fee: number;
+  created_at: string;
+}
 
 export default function FeeManagement() {
-  const structureColumns = [
-    { header: 'Class', accessor: 'class' as keyof typeof feeStructure[0] },
-    { header: 'Tuition Fee', accessor: (row: typeof feeStructure[0]) => `$${row.tuitionFee}` },
-    { header: 'Lab Fee', accessor: (row: typeof feeStructure[0]) => `$${row.labFee}` },
-    { header: 'Sports Fee', accessor: (row: typeof feeStructure[0]) => `$${row.sportsFee}` },
-    { header: 'Total Fee', accessor: (row: typeof feeStructure[0]) => <span className="font-semibold text-primary">${row.totalFee}</span> },
-  ];
+  const [feeStructure, setFeeStructure] = useState<FeeStructure[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const recordColumns = [
-    { header: 'Student', accessor: 'studentName' as keyof typeof feeRecords[0] },
-    { header: 'Class', accessor: 'class' as keyof typeof feeRecords[0] },
-    { header: 'Total Fee', accessor: (row: typeof feeRecords[0]) => `$${row.totalFee}` },
-    { header: 'Paid', accessor: (row: typeof feeRecords[0]) => <span className="text-success font-medium">${row.paidAmount}</span> },
-    { header: 'Due', accessor: (row: typeof feeRecords[0]) => <span className={row.dueAmount > 0 ? 'text-destructive font-medium' : ''}>${row.dueAmount}</span> },
-    { header: 'Status', accessor: (row: typeof feeRecords[0]) => <StatusBadge status={row.status as 'paid' | 'pending' | 'overdue'} /> },
-    { header: 'Due Date', accessor: 'dueDate' as keyof typeof feeRecords[0] },
-  ];
+  // 🔹 Add Fee Modal state
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    class_name: "",
+    tuition_fee: "",
+    lab_fee: "",
+    sports_fee: "",
+  });
 
-  const totalCollected = feeRecords.reduce((sum, r) => sum + r.paidAmount, 0);
-  const totalPending = feeRecords.reduce((sum, r) => sum + r.dueAmount, 0);
+  useEffect(() => {
+    fetchFeeStructure();
+  }, []);
+
+  // ===============================
+  // FETCH FEE STRUCTURE
+  // ===============================
+  const fetchFeeStructure = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/fees/structure", {
+        baseURL: "http://localhost:5000/api",
+      });
+
+      setFeeStructure(res.data);
+    } catch (error) {
+      console.error("Failed to fetch fee structure", error);
+      setFeeStructure([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ===============================
+  // ADD FEE CATEGORY
+  // ===============================
+  const handleAddFee = async () => {
+  try {
+    const res = await api.post(
+      "/fees/structure",
+      {
+        class_name: form.class_name,
+        tuition_fee: Number(form.tuition_fee),
+        lab_fee: Number(form.lab_fee),
+        sports_fee: Number(form.sports_fee),
+      },
+      {
+        baseURL: "http://localhost:5000/api",
+      }
+    );
+
+    console.log("ADD SUCCESS 👉", res.data);
+
+    setOpen(false);
+    setForm({
+      class_name: "",
+      tuition_fee: "",
+      lab_fee: "",
+      sports_fee: "",
+    });
+
+    fetchFeeStructure(); // refresh
+  } catch (error: any) {
+    console.error("ADD FAILED 👉", error.response?.data || error.message);
+    alert(error.response?.data?.error || "Failed to add fee");
+  }
+};
+
+  // ===============================
+  // TABLE COLUMNS
+  // ===============================
+  const columns = [
+    {
+      header: "Class",
+      accessor: "class_name",
+    },
+    {
+      header: "Tuition Fee",
+      accessor: (row: FeeStructure) => `₹ ${row.tuition_fee}`,
+    },
+    {
+      header: "Lab Fee",
+      accessor: (row: FeeStructure) => `₹ ${row.lab_fee}`,
+    },
+    {
+      header: "Sports Fee",
+      accessor: (row: FeeStructure) => `₹ ${row.sports_fee}`,
+    },
+    {
+      header: "Total Fee",
+      accessor: (row: FeeStructure) => (
+        <span className="font-semibold text-green-600">
+          ₹ {row.total_fee}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
+    <div className="space-y-6">
       <PageHeader
         title="Fee Management"
-        subtitle="Manage fee structure and track payments"
+        description="View class-wise fee structure"
+        icon={<DollarSign className="h-6 w-6" />}
       />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-card rounded-xl p-6 shadow-md border border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 bg-success/10 rounded-xl flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-success" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Collected</p>
-              <p className="text-2xl font-bold text-success">${totalCollected.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card rounded-xl p-6 shadow-md border border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 bg-warning/10 rounded-xl flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-warning" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Pending Amount</p>
-              <p className="text-2xl font-bold text-warning">${totalPending.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card rounded-xl p-6 shadow-md border border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Collection Rate</p>
-              <p className="text-2xl font-bold text-primary">{((totalCollected / (totalCollected + totalPending)) * 100).toFixed(1)}%</p>
-            </div>
-          </div>
-        </div>
+      {/* ADD BUTTON */}
+      <div className="flex justify-end">
+        <Button onClick={() => setOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Fee Category
+        </Button>
       </div>
 
-      <Tabs defaultValue="structure" className="space-y-6">
-        <TabsList className="bg-muted">
-          <TabsTrigger value="structure">Fee Structure</TabsTrigger>
-          <TabsTrigger value="records">Student Records</TabsTrigger>
-        </TabsList>
+      {/* TABLE */}
+      {loading ? (
+        <p className="text-center text-muted-foreground py-10">
+          Loading fee structure...
+        </p>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={feeStructure}
+          emptyMessage="No fee structure found"
+        />
+      )}
 
-        <TabsContent value="structure">
-          <div className="flex justify-end mb-4">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" /> Add Fee Category
-            </Button>
-          </div>
-          <DataTable columns={structureColumns} data={feeStructure} />
-        </TabsContent>
+      {/* ADD MODAL */}
+      {open && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md space-y-4">
+            <h2 className="text-lg font-semibold">Add Fee Category</h2>
 
-        <TabsContent value="records">
-          <div className="flex justify-end mb-4 gap-2">
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" /> Export
-            </Button>
-            <Button>Record Payment</Button>
+            <div>
+              <Label>Class Name</Label>
+              <Input
+                value={form.class_name}
+                onChange={(e) =>
+                  setForm({ ...form, class_name: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Tuition Fee</Label>
+              <Input
+                type="number"
+                value={form.tuition_fee}
+                onChange={(e) =>
+                  setForm({ ...form, tuition_fee: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Lab Fee</Label>
+              <Input
+                type="number"
+                value={form.lab_fee}
+                onChange={(e) =>
+                  setForm({ ...form, lab_fee: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Sports Fee</Label>
+              <Input
+                type="number"
+                value={form.sports_fee}
+                onChange={(e) =>
+                  setForm({ ...form, sports_fee: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddFee}>Save</Button>
+            </div>
           </div>
-          <DataTable columns={recordColumns} data={feeRecords} />
-        </TabsContent>
-      </Tabs>
-    </motion.div>
+        </div>
+      )}
+    </div>
   );
 }

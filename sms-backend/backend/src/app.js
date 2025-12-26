@@ -15,8 +15,10 @@ import attendanceRoutes from "./routes/attendance.routes.js";
 import teacherdashboardRoutes from "./routes/teacherdashboard.routes.js";
 import gradesRoutes from "./routes/grades.routes.js";
 import notificationsRoutes from "./routes/notifications.route.js";
+import feeRoutes from "./routes/fee.routes.js";
 
 import parentRoutes from "./routes/parent.routes.js";
+
 
 const app = express();
 
@@ -40,6 +42,7 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/teacherdashboard", teacherdashboardRoutes);
 app.use("/api/grades", gradesRoutes);
 app.use("/api/notifications", notificationsRoutes);
+app.use("/api/fees", feeRoutes); 
 
 app.use("/api/parent", parentRoutes);
 

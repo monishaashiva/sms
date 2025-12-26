@@ -28,7 +28,7 @@ export default function TeacherForm() {
     email: "",
     phone: "",
     subject: "",
-    class: "",
+    class_name: "",
   });
 
   /* =======================
@@ -37,28 +37,28 @@ export default function TeacherForm() {
   useEffect(() => {
   if (!isEdit || !id) return;
 
-    const fetchTeacher = async () => {
-      try {
-        const res = await api.get(`/api/teachers/${id}`);
-        setFormData({
-          name: res.data.name || "",
-          email: res.data.email || "",
-          phone: res.data.phone || "",
-          subject: res.data.subject || "",
-          class: res.data.class_name || "",  
+  const fetchTeacher = async () => {
+    try {
+      const res = await api.get(`/api/teachers/${id}`);
+      setFormData({
+  name: res.data.name || "",
+  email: res.data.email || "",
+  phone: res.data.phone || "",
+  subject: res.data.subject || "",
+  class_name: res.data.class_name || "",
 });
 
-      } catch (err) {
-        toast({
-          title: "Error",
-          description: "Failed to load teacher",
-          variant: "destructive",
-        });
-      }
-    };
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to load teacher",
+        variant: "destructive",
+      });
+    }
+  };
 
-    fetchTeacher();
-  }, [id]);
+  fetchTeacher();
+}, [id]);
 
   /* =======================
      SUBMIT (ADD / EDIT)
@@ -67,12 +67,12 @@ export default function TeacherForm() {
   e.preventDefault();
 
   const payload = {
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
-    subject: formData.subject,
-    class_name: formData.class, 
-  };
+  name: formData.name,
+  email: formData.email,
+  phone: formData.phone,
+  subject: formData.subject,
+  class_name: formData.class_name,
+};
 
   try {
     if (isEdit) {
@@ -161,24 +161,26 @@ export default function TeacherForm() {
         </div>
 
         <div>
-          <Label>Class</Label>
-          <Select
-            value={formData.class}
-            onValueChange={(value) =>
-              setFormData({ ...formData, class: value })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select class" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Class 1-A">1-A</SelectItem>
-              <SelectItem value="Class 1-B">1-B</SelectItem>
-              <SelectItem value="Class 2-A">2-A</SelectItem>
-              <SelectItem value="Class 3-B">3-B</SelectItem>            
-            </SelectContent>
-          </Select>
-        </div>
+  <Label>Class</Label>
+  <Select
+  value={formData.class_name}
+  onValueChange={(value) =>
+    setFormData({ ...formData, class_name: value })
+  }
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Select class" />
+  </SelectTrigger>
+
+  <SelectContent>
+  <SelectItem value="Class 1-A">Class 1-A</SelectItem>
+  <SelectItem value="Class 1-B">Class 1-B</SelectItem>
+  <SelectItem value="Class 2-A">Class 2-A</SelectItem>
+  <SelectItem value="Class 3-B">Class 3-B</SelectItem>
+</SelectContent>
+</Select>
+</div>
+
 
         <Button type="submit">
           <Save className="h-4 w-4 mr-2" />

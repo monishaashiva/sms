@@ -14,7 +14,7 @@ interface DataTableProps<T> {
   emptyMessage?: string;
 }
 
-export function DataTable<T extends { id: string }>({
+export function DataTable<T extends { id: number | string }>({
   columns,
   data,
   onRowClick,
@@ -40,10 +40,14 @@ export function DataTable<T extends { id: string }>({
               ))}
             </tr>
           </thead>
+
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-12 text-muted-foreground">
+                <td
+                  colSpan={columns.length}
+                  className="text-center py-12 text-muted-foreground"
+                >
                   {emptyMessage}
                 </td>
               </tr>
