@@ -1,0 +1,369 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  teacher
+  parent
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum TeacherStatus {
+  active
+  on_leave @map("on-leave")
+  inactive
+}
+
+enum StudentStatus {
+  active
+  inactive
+  suspended
+  graduated
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+enum ExamType {
+  mid_term  @map("mid-term")
+  final
+  unit_test @map("unit-test")
+  assignment
+  project
+  practical
+}
+
+enum FeeStatus {
+  paid
+  pending
+  overdue
+  partial
+}
+
+enum NotificationType {
+  event
+  reminder
+  notice
+  academic
+  emergency
+  holiday
+  general
+}
+
+enum NotificationPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  name                String
+  email               String    @unique
+  password            String
+  role                UserRole  @default(parent)
+  phone               String?
+  avatar              String?
+  isActive            Boolean   @default(true)
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  lastLogin           DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  studentProfile Student[] // If user is parent, they have students (children)
+  teacherProfile Teacher? // If user is teacher
+  
+  // Relations for system tracking
+  createdNotifications Notification[] @relation("CreatedBy")
+  readNotifications    NotificationRead[]
+  markedAttendance     Attendance[]
+  enteredGrades        Grade[]
+  appliedDiscounts     FeeDiscount[]
+  receivedPayments     FeePayment[]
+}
+
+model Student {
+  id          String   @id @default(uuid())
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  name        String
+  email       String   @unique
+  rollNo      String
+  section     String
+  phone       String?
+  dateOfBirth DateTime?
+  gender      Gender?
+  avatar      String?
+  
+  // Address
+  street      String?
+  city        String?
+  state       String?
+  pincode     String?
+
+  // Parent Info
+  fatherName    String?
+  motherName    String?
+  guardianPhone String?
+  guardianEmail String?
+
+  admissionDate DateTime      @default(now())
+  status        StudentStatus @default(active)
+  bloodGroup    String?
+  
+  // Medical Info
+  allergies        String?
+  conditions       String?
+  emergencyContact String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  class          Class      @relation(fields: [classId], references: [id])
+  classId        String
+  attendance     Attendance[]
+  grades         Grade[]
+  fees           Fee[]
+
+  @@unique([classId, rollNo])
+}
+
+model Teacher {
+  id               String        @id @default(uuid())
+  user             User?         @relation(fields: [userId], references: [id])
+  userId           String?       @unique
+  name             String
+  email            String        @unique
+  employeeId       String        @unique
+  phone            String
+  subject          String
+  qualification    String?
+  experience       Int           @default(0)
+  dateOfJoining    DateTime      @default(now())
+  dateOfBirth      DateTime?
+  gender           Gender?
+  salary           Float?
+  status           TeacherStatus @default(active)
+  avatar           String?
+
+  // Address
+  street  String?
+  city    String?
+  state   String?
+  pincode String?
+
+  // Emergency Contact
+  emergencyContactName     String?
+  emergencyContactRelation String?
+  emergencyContactPhone    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  classes         Class[]      @relation("ClassTeacher") // Classes they are the main teacher of
+  teachingClasses Class[]      @relation("SubjectTeachers") // Classes they teach a subject in (many-to-many implicit)
+  
+  // Additional explicit relation for Schedule if needed, but for now we'll stick to simple mapping
+}
+
+model Class {
+  id           String  @id @default(uuid())
+  name         String
+  grade        Int
+  section      String
+  academicYear String
+  capacity     Int     @default(40)
+  room         String?
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  classTeacher   Teacher?   @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+  classTeacherId String?
+  
+  students       Student[]
+  attendance     Attendance[]
+  grades         Grade[]
+  fees           Fee[]
+  
+  // Many-to-many with teachers who teach subjects here
+  teachers       Teacher[]  @relation("SubjectTeachers")
+  
+  // Note: Complex schedule structure from Mongoose is harder to map directly. 
+  // We can store it as JSON or create separate models. For simplicity, we use JSON.
+  schedule       Json?
+  subjects       Json? // Array of { name, teacherId }
+
+  @@unique([grade, section, academicYear])
+}
+
+model Attendance {
+  id        String           @id @default(uuid())
+  date      DateTime         @default(now())
+  status    AttendanceStatus @default(present)
+  remarks   String?
+  period    String?
+  subject   String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relations
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   String
+  markedBy  User    @relation(fields: [markedById], references: [id])
+  markedById String
+
+  @@unique([studentId, date, period])
+  @@index([studentId, date])
+  @@index([classId, date])
+}
+
+model Grade {
+  id           String   @id @default(uuid())
+  subject      String
+  examType     ExamType
+  examName     String
+  marks        Float
+  maxMarks     Float
+  grade        String?
+  percentage   Float?
+  remarks      String?
+  examDate     DateTime
+  academicYear String
+  term         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  student     Student @relation(fields: [studentId], references: [id])
+  studentId   String
+  class       Class   @relation(fields: [classId], references: [id])
+  classId     String
+  enteredBy   User    @relation(fields: [enteredById], references: [id])
+  enteredById String
+
+  @@index([studentId, academicYear])
+  @@index([classId, subject, examType])
+}
+
+model Fee {
+  id           String    @id @default(uuid())
+  academicYear String
+  term         String
+  totalFee     Float
+  paidAmount   Float     @default(0)
+  dueAmount    Float
+  status       FeeStatus @default(pending)
+  dueDate      DateTime
+  lateFee      Float     @default(0)
+  remarks      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Structure fields stored as JSON
+  feeStructure Json // { tuitionFee, admissionFee, ... }
+
+  // Relations
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   String
+  
+  payments  FeePayment[]
+  discounts FeeDiscount[]
+
+  @@index([studentId, academicYear])
+  @@index([status, dueDate])
+}
+
+model FeePayment {
+  id            String   @id @default(uuid())
+  amount        Float
+  paymentDate   DateTime @default(now())
+  paymentMethod String
+  transactionId String?
+  receiptNumber String?
+  remarks       String?
+
+  fee           Fee      @relation(fields: [feeId], references: [id])
+  feeId         String
+  receivedBy    User?    @relation(fields: [receivedById], references: [id])
+  receivedById  String?
+}
+
+model FeeDiscount {
+  id        String   @id @default(uuid())
+  amount    Float    @default(0)
+  reason    String?
+  
+  fee       Fee      @relation(fields: [feeId], references: [id])
+  feeId     String
+  appliedBy User?    @relation(fields: [appliedById], references: [id])
+  appliedById String?
+}
+
+model Notification {
+  id          String               @id @default(uuid())
+  title       String
+  message     String
+  type        NotificationType     @default(general)
+  priority    NotificationPriority @default(medium)
+  recipients  String               @default("all") // Enum logic handled in app code
+  date        DateTime             @default(now())
+  expiryDate  DateTime?
+  isActive    Boolean              @default(true)
+  tags        String[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  // Attachments and Specific Recipients as JSON
+  attachments         Json?
+  specificRecipients  Json?
+
+  // Relations
+  createdBy   User               @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById String
+  readBy      NotificationRead[]
+
+  @@index([recipients, isActive, date])
+  @@index([type, date])
+}
+
+model NotificationRead {
+  id             String   @id @default(uuid())
+  readAt         DateTime @default(now())
+
+  notification   Notification @relation(fields: [notificationId], references: [id])
+  notificationId String
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+
+  @@unique([notificationId, userId])
+}

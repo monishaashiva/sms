@@ -1,0 +1,18 @@
+# Global dependencies
+node_modules/
+.env
+.DS_Store
+
+# Editor directories
+.idea/
+.vscode/
+
+# Build artifacts (if built at root)
+dist/
+build/
+coverage/
+
+# OS Files
+Thumbs.db
+*.swp
+*.swo
