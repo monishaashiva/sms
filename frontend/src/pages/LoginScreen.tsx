@@ -28,14 +28,14 @@ export default function LoginScreen() {
         title: 'Welcome back!',
         description: 'Login successful. Redirecting to dashboard...',
       });
-      
+
       // Role-based redirect
       const roleRoutes: Record<string, string> = {
         'admin@school.com': '/admin',
         'teacher@school.com': '/teacher',
         'parent@school.com': '/parent',
       };
-      
+
       navigate(roleRoutes[email.toLowerCase()] || '/admin');
     } else {
       toast({
@@ -59,7 +59,7 @@ export default function LoginScreen() {
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-primary relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZoLTJ2LTRoMnY0em0tNiA2aC0ydi00aDJ2NHptMC02aC0ydi00aDJ2NHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
-        
+
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -72,15 +72,15 @@ export default function LoginScreen() {
               </div>
               <span className="text-3xl font-bold text-primary-foreground">School Harmony</span>
             </div>
-            
+
             <h1 className="text-4xl xl:text-5xl font-bold text-primary-foreground mb-6 leading-tight">
               Manage Your School
               <br />
               <span className="text-primary-foreground/80">Efficiently</span>
             </h1>
-            
+
             <p className="text-lg text-primary-foreground/70 max-w-md">
-              A complete solution for managing students, teachers, attendance, grades, and more. 
+              A complete solution for managing students, teachers, attendance, grades, and more.
               Everything you need in one place.
             </p>
           </motion.div>

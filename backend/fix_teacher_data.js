@@ -1,44 +1,89 @@
-import prisma from './config/prisma.js';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const fixTeacherData = async () => {
-    console.log('Starting SAFE Teacher data fix...');
+const prisma = new PrismaClient();
 
-    try {
-        // 1. Fix Inactive Teachers (renaming unique fields)
-        const inactiveTeachers = await prisma.teacher.findMany({
-            where: {
-                status: 'inactive',
-                NOT: {
-                    email: { contains: '_deleted_' }
-                }
+async function main() {
+    const email = 'teacher@school.com';
+    const newName = 'K R Sudha';
+    const password = 'teacher123';
+
+    console.log(`Fixing account for ${email}...`);
+
+    // 1. Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 2. Upsert User
+    const user = await prisma.user.upsert({
+        where: { email },
+        update: {
+            name: newName,
+            password: hashedPassword,
+            isActive: true,
+            role: 'teacher'
+        },
+        create: {
+            name: newName,
+            email,
+            password: hashedPassword,
+            role: 'teacher',
+            isActive: true
+        }
+    });
+
+    console.log('User updated:', user.id);
+
+    // 3. Update or Create Teacher Profile
+    // Check if a teacher profile exists for this user
+    let teacher = await prisma.teacher.findUnique({
+        where: { userId: user.id } // This relies on the 1-to-1 relation
+    });
+
+    // Fallback: Check by email if userId link was missing
+    if (!teacher) {
+        teacher = await prisma.teacher.findUnique({
+            where: { email: email }
+        });
+    }
+
+    if (teacher) {
+        // Update existing
+        await prisma.teacher.update({
+            where: { id: teacher.id },
+            data: {
+                name: newName,
+                userId: user.id, // Ensure link
+                status: 'active'
             }
         });
-
-        console.log(`Found ${inactiveTeachers.length} inactive teachers to rename.`);
-
-        for (const t of inactiveTeachers) {
-            const suffix = `_deleted_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-
-            try {
-                await prisma.teacher.update({
-                    where: { id: t.id },
-                    data: {
-                        email: `${t.email}${suffix}`,
-                        employeeId: `${t.employeeId}${suffix}`
-                    }
-                });
-                console.log(`Renamed inactive teacher: ${t.name}`);
-            } catch (e) {
-                console.error(`Failed to rename ${t.name}:`, e.message);
+        console.log('Teacher profile updated.');
+    } else {
+        // Create new
+        await prisma.teacher.create({
+            data: {
+                name: newName,
+                email: email,
+                userId: user.id,
+                employeeId: 'T-SUDHA',
+                phone: '9876543210',
+                subject: 'Mathematics',
+                qualification: 'M.Sc B.Ed',
+                experience: 15,
+                status: 'active'
             }
-        }
-
-        console.log('Teacher data fix completed successfully!');
-    } catch (error) {
-        console.error('Error fixing teacher data:', error);
-    } finally {
-        await prisma.$disconnect();
+        });
+        console.log('Teacher profile created.');
     }
-};
 
-fixTeacherData();
+    console.log('✅ Account Name and Password Fixed.');
+}
+
+main()
+    .catch(e => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

@@ -22,7 +22,7 @@ export default function NotificationsManagement() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [recipients, setRecipients] = useState('all');
-  const [type, setType] = useState('announcement');
+  const [type, setType] = useState('notice');
   const [historyNotifications, setHistoryNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
@@ -128,9 +128,11 @@ export default function NotificationsManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-popover">
-                      <SelectItem value="announcement">Announcement</SelectItem>
+                      <SelectItem value="notice">Announcement (Notice)</SelectItem>
                       <SelectItem value="event">Event</SelectItem>
-                      <SelectItem value="alert">Alert</SelectItem>
+                      <SelectItem value="holiday">Holiday</SelectItem>
+                      <SelectItem value="emergency">Emergency Alert</SelectItem>
+                      <SelectItem value="general">General Message</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
